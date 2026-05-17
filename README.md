@@ -1,6 +1,6 @@
 # THE CARTOGRAPHER WHO SANG BACKWARDS — OpenClaw Agent Bundle
 
-A model-agnostic, multi-agent GM-assistant bundle for running *The Cartographer Who Sang Backwards* (Daggerheart campaign, Velthuryn setting) in play-by-post with 7–8 players.
+A model-agnostic, multi-agent GM-assistant bundle for running *The Cartographer Who Sang Backwards* (Daggerheart campaign, Velthuryn setting) in play-by-post with 7–8 players. Includes 11 specialist agents, 15 named workflows, and a full state management system for HP, clocks, Hope/Fear, NPC dispositions, and active combat.
 
 This bundle is designed for **OpenClaw** or any agent-orchestration framework that can route prompts to specialized agents, read/write state files, and chain agents into workflows.
 
@@ -10,9 +10,10 @@ This bundle is designed for **OpenClaw** or any agent-orchestration framework th
 
 1. **Drop the entire `cartographer_agents/` directory** into your OpenClaw workspace (or whatever model runtime you're using).
 2. **Open `agents/00_gm_coordinator.md`** — this is the entry-point agent. It routes everything else.
-3. **Edit `state/party_roster_template.csv`** to add your 7–8 players, then save it as `state/party_roster.csv`.
+3. **Edit `state/party_roster_template.csv`** to add your 7–8 players, then save it as `state/party_roster.csv`. Also populate `state/pc_state.md` with your PCs' starting HP, Stress, and Armor values.
 4. **Run a session-start workflow** (see `workflows/WORKFLOWS.md` → "Session Start"). The coordinator will load state, summarize threads, and prompt you for the opening beat.
-5. **For each player action**, send the GM Coordinator a message describing what the player said and (when they rolled) their Duality Die results. The coordinator routes to specialists and returns a structured response.
+5. **For each player turn**, use `[WORKFLOW: Player Post Ingestion]` — paste in all received player posts and let the Player Post Parser extract structured action summaries before routing. For each resolved action, send the GM Coordinator the parsed summary with roll results.
+6. **At session end**, run `[WORKFLOW: Session End]` then `[WORKFLOW: Spotlight Check]` to verify all 7–8 players got meaningful screen time.
 
 ---
 
@@ -21,6 +22,7 @@ This bundle is designed for **OpenClaw** or any agent-orchestration framework th
 ```
 cartographer_agents/
 ├── README.md                         (this file)
+├── AGENTS.md                         Dev context for AI coding sessions (Loam/Archon)
 ├── agents/
 │   ├── 00_gm_coordinator.md          Orchestrator — entry point
 │   ├── 01_clock_tracker.md           Manages 3 campaign clocks + scene clocks
@@ -28,14 +30,19 @@ cartographer_agents/
 │   ├── 03_location_composer.md       Generates locations with tone/sensory anchors
 │   ├── 04_roll_resolver.md           Daggerheart Duality Die mechanics
 │   ├── 05_challenge_architect.md     Designs combat/social/investigation/environment
-│   ├── 06_session_logger.md          End-session recaps, state reconciliation
-│   └── 07_atlas_researcher.md        Fetches & navigates atlas.mcmahongroup.org
+│   ├── 06_session_logger.md          End-session recaps, state reconciliation, spotlight
+│   ├── 07_atlas_researcher.md        Fetches & navigates atlas.mcmahongroup.org
+│   ├── 08_player_post_parser.md      Parses raw PBP player posts into structured actions
+│   ├── 09_pc_state_tracker.md        Tracks HP/Stress/Conditions; handles rest/recovery
+│   └── 10_combat_state_manager.md    Tracks adversary state across multi-round PBP combat
 ├── workflows/
-│   └── WORKFLOWS.md                  Multi-agent flows (Action, Combat Round, etc.)
+│   └── WORKFLOWS.md                  Multi-agent flows (Action, Combat Round, PBP-specific, etc.)
 ├── state/
 │   ├── campaign_state.md             Master state — trail position, world status
 │   ├── clocks.md                     Live clock values
 │   ├── hope_fear_ledger.md           Per-PC Hope + GM Fear pool
+│   ├── pc_state.md                   Per-PC HP, Stress, Armor, Conditions (mutable)
+│   ├── combat_state.md               Active encounter adversary tracking (ephemeral)
 │   ├── party_roster_template.csv     Replace with your party's CSV
 │   ├── session_log.md                Per-session entries (logger appends)
 │   ├── open_threads.md               Active plot threads
@@ -44,6 +51,7 @@ cartographer_agents/
 │   ├── daggerheart_quickref.md       Duality Die, TN bands, all core mechanics
 │   ├── campaign_quickref.md          Distinctions, clocks, factions, locations
 │   └── atlas_index.md                Known/guessed worldbook URLs
+├── plans/                            Archon PIV implementation plans
 └── npcs/
     └── npc_roster.md                 15 starter NPCs + template
 ```
@@ -112,6 +120,22 @@ Call it when:
 - A historical reference comes up (Brightcrawl era, Concord, Mirror Wars, etc.)
 
 The agent caps itself at 4 fetches per query to stay efficient. If it can't find what's needed, it will say so plainly rather than fabricate.
+
+---
+
+## PBP-SPECIFIC WORKFLOWS
+
+Three new agents (08–10) and five new workflows address the specific demands of play-by-post:
+
+| Workflow | When to use |
+|----------|-------------|
+| **Player Post Ingestion** | At the start of each GM turn — batch all player posts, parse them, determine resolution order |
+| **Rest and Recovery** | When the party takes a short or long rest — applies Daggerheart rest mechanics formally |
+| **Player Lore Query** | When a player asks what they know about a topic — synthesizes in-play knowledge vs. world lore |
+| **Combat Initialization** | When combat begins — bridges encounter design to adversary state tracking |
+| **Spotlight Check** | At session end — flags PCs who had no significant actions and proposes next-session hooks |
+
+Use `[PLAYER POST: PCName]` as a quick prefix to route a single player post directly to the parser without running the full batch workflow.
 
 ---
 
