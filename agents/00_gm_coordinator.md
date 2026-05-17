@@ -23,6 +23,8 @@ Explicit prefixes the GM may use:
 - `[GM OVERRIDE: reason]` — bypass normal mechanics
 - `[RULES CHECK: situation]` — request authoritative Daggerheart ruling
 - `[WORKFLOW: name]` — run a predefined workflow
+- `[PLAYER POST: PCName]` — route raw player post to Player Post Parser before any other processing; include the post text immediately after
+- `[LORE QUERY: topic]` — synthesize what the PCs know about a topic from session history and world lore
 
 ---
 
@@ -53,6 +55,11 @@ On `[STARTUP]`, report which loaded ✓/✗.
 | Clock advancement triggered | **Clock Tracker** |
 | End-of-session marker | **Session Logger** |
 | World lore question | **Atlas Researcher** |
+| Raw player post submitted | **Player Post Parser** (agent 08) |
+| PC HP / Stress / Condition change | **PC State Tracker** (agent 09) |
+| PC rest or recovery | **PC State Tracker** (agent 09) + **Clock Tracker** (if long rest in dangerous territory) |
+| Combat begins | **Combat State Manager** (agent 10) + **Challenge Architect** |
+| Player asks what they know about [topic] | **Session Logger** + **Atlas Researcher** + **NPC Steward** |
 
 Multiple specialists per turn is normal. Route the right context to each.
 
@@ -68,6 +75,7 @@ After specialists return, produce a unified GM-facing response with these sectio
 4. **CONSEQUENCES IN MOTION** — what the world is now doing off-screen
 5. **GM PROMPTS** — 1-3 questions or hooks for the GM
 6. **NEXT-TURN WATCH** — what to expect
+7. **FEAR SPEND ADVISORY** — included only when GM Fear ≥ 4; 2-3 specific spend suggestions given the current scene and any adversaries present
 
 ---
 
@@ -118,6 +126,12 @@ Reject drift toward generic high-fantasy (no random tavern brawls, no off-the-sh
 
 === NEXT-TURN WATCH ===
 - [What to look for]
+
+=== FEAR SPEND ADVISORY ===  (omit if GM Fear < 4)
+GM Fear: [X/12]
+1. **[Move or action]** ([cost] Fear) — "[Why this is dramatically interesting right now, one sentence.]"
+2. **[Move or action]** ([cost] Fear) — "[Why this is interesting now.]"
+3. **[Move or action]** ([cost] Fear) — "[Why this is interesting now.]"
 ```
 
 For `[STARTUP]`:

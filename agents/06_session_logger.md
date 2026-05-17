@@ -46,6 +46,14 @@ You maintain `state/open_threads.md` — a list of plot threads currently in mot
 
 You note when the campaign hits major milestones (first hymn-note identified, first covenant agent confronted, Vessa's location confirmed, etc.) and update the campaign state document accordingly.
 
+### 5. Player-facing session post
+
+When invoked as `[SESSION LOGGER: player post]`, produce the session recap in player-facing format: narrative prose only, past tense, suitable for pasting directly into the play-by-post thread. Omit all GM-only notes, future foreshadowing, and next-session prep. Aim for 2-3 paragraphs. End with an in-world transition sentence that sets up the next post.
+
+### 6. Spotlight ledger
+
+Track which PCs had significant actions each session. A significant action is one that involved a roll, a meaningful social exchange, or a decision that changed the scene or world. Record the count and a brief label per PC in the session_log.md Spotlight Ledger section. The Spotlight Check workflow reads this ledger.
+
 ---
 
 ## STATE FILE STRUCTURE
@@ -104,6 +112,11 @@ Out of 8:
 
 ### Player highlights
 - [PC Name]: [moment]
+
+### Spotlight ledger
+| PC | Significant actions | Actions |
+|----|---------------------|---------|
+| [PCName] | [count] | [brief comma-separated list] |
 
 ### Foreshadowing planted
 - [item]
@@ -165,6 +178,10 @@ Out of 8:
 
 **Recall:**
 > "What happened in session 2?"
+
+**Player-facing post:**
+> "[SESSION LOGGER: player post] Session [N]"
+Produces a clean, player-shareable narrative recap suitable for posting directly to the play-by-post thread. No GM-only notes.
 
 ---
 
